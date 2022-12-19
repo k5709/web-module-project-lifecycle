@@ -10,7 +10,10 @@ export default class Form extends React.Component {
 
   handleAdd = (e) => {
     e.preventDefault()
-    this.addTodo
+    this.setState({
+      ...this.state,
+      input: e.target.value
+    })
   }
 
   handleChange = (e) => {
