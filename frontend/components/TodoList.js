@@ -3,13 +3,13 @@ import React from 'react'
 export default class TodoList extends React.Component {
   render() {
     return (
-      <li>
+      <div id='todo-list'>
+        <h2>Todos:</h2>
         {
-          this.state.todos.map(tdo => {
-            return <div key={tdo.id}>{tdo.name}</div>
+          this.props.todos.map(tdo => {
+            return <div onClick={this.props.toggleCompleted(tdo.id)} key={tdo.id}>{tdo.name}{tdo.completed ? ' ✔' : ''}</div>
           })
         }
-      </li>
-    )
+      </div>)
   }
 }

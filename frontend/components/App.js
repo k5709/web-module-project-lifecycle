@@ -13,7 +13,8 @@ export default class App extends React.Component {
     super();
     this.state = {
       todos: [],
-      todoInput: ''
+      todoInput: '',
+      displayCompleted: true
     }
   }
   onTodoNameInput = (evt) => {
@@ -23,6 +24,13 @@ export default class App extends React.Component {
       todoInput: value
     })
   }
+
+  toggleDisplayCompleted = (evt) => {
+    evt.preventDefault()
+    this.setState({ ...this.state, displayCompleted: !this.state.displayCompleted })
+  }
+
+  resetForm = () => this.setState({ ...this.state, todoInput: '' })
 
   addTodo = () => {
     axios.post(URL, { name: this.state.todoInput }).then(res => {
@@ -47,6 +55,20 @@ export default class App extends React.Component {
         this.setState({ ...this.state, error: err.response.data.message })
       })
   }
+  toggleCompleted = id => () => {
+    axios.patch(`${URL}/${id}`)
+      .then(res => {
+        this.setState({
+          ...this.state, todos: this.state.todos.map(tdo => {
+            if (tdo.id !== id) return tdo;
+            return res.data.data;
+          })
+        })
+      }).catch(err => {
+        console.error('err')
+      })
+  }
+
   componentDidMount() {
     console.log("CDM");
     this.fetchTodos()
@@ -55,22 +77,23 @@ export default class App extends React.Component {
     console.log("render ran")
     return (
       <>
-        <h2>Todos:</h2>
+        <TodoList
+          toggleCompleted={this.toggleCompleted}
+          todos={this.state.todos}
+        />
+        {/* <h2>Todos:</h2>
         {
           this.state.todos.map(tdo => {
-            return <div key={tdo.id}>{tdo.name}</div>
+            return <div onClick={this.toggleCompleted(tdo.id)} key={tdo.id}>{tdo.name}{tdo.completed ? ' ✔' : ''}</div>
           })
-        }
-        {/* <Form onSubmit={this.onTodoFormSubmit} /> */}
-        <form>
-          <input
-            value={this.state.todoInput}
-            type='text'
-            placeholder='type todo'
-            onChange={this.onTodoNameInput} ></input>
-          <button onClick={this.addTodo}>Add Todo</button>
-          <button>Clear Todo</button>
-        </form>
+        } */}
+        <Form
+          onTodoFormSubmit={this.onTodoFormSubmit}
+          onTodoNameInput={this.onTodoNameInput}
+          toggleDisplayCompleted={this.toggleDisplayCompleted}
+          addTodo={this.addTodo}
+          displayCompleted={this.state.displayCompleted}
+        />
       </>
     )
   }
